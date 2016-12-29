@@ -204,6 +204,17 @@ public final class GraphHopperGtfs implements GraphHopperAPI {
             destNode = dest.getClosestNode();
         }
 
+        startNode = findEnterNode(startNode);
+        destNode = findExitNode(destNode);
+        if (NodeType.values()[graphHopperStorage.getNodeAccess().getAdditionalNodeField(startNode)] != NodeType.STOP_ENTER_NODE) {
+            throw new RuntimeException();
+        }
+        if (NodeType.values()[graphHopperStorage.getNodeAccess().getAdditionalNodeField(destNode)] != NodeType.STOP_EXIT_NODE) {
+            throw new RuntimeException();
+        }
+
+
+
         ArrayList<Integer> toNodes = new ArrayList<>();
         toNodes.add(destNode);
 
@@ -315,6 +326,34 @@ public final class GraphHopperGtfs implements GraphHopperAPI {
             }
         }
         return response;
+    }
+
+    private int findEnterNode(int startNode) {
+        if (NodeType.values()[graphHopperStorage.getNodeAccess().getAdditionalNodeField(startNode)] == NodeType.STOP_ENTER_NODE) {
+            return startNode;
+        }
+        EdgeExplorer edgeExplorer = graphHopperStorage.createEdgeExplorer(new DefaultEdgeFilter((PtFlagEncoder) encodingManager.getEncoder("pt"), true, true));
+        EdgeIterator edgeIterator = edgeExplorer.setBaseNode(startNode);
+        while (edgeIterator.next()) {
+            if (NodeType.values()[graphHopperStorage.getNodeAccess().getAdditionalNodeField(edgeIterator.getAdjNode())] == NodeType.STOP_ENTER_NODE ) {
+                return edgeIterator.getAdjNode();
+            }
+        }
+        throw new RuntimeException("Unexpected graph structure.");
+    }
+
+    private int findExitNode(int destNode) {
+        if (NodeType.values()[graphHopperStorage.getNodeAccess().getAdditionalNodeField(destNode)] == NodeType.STOP_EXIT_NODE) {
+            return destNode;
+        }
+        EdgeExplorer edgeExplorer = graphHopperStorage.createEdgeExplorer(new DefaultEdgeFilter((PtFlagEncoder) encodingManager.getEncoder("pt"), true, true));
+        EdgeIterator edgeIterator = edgeExplorer.setBaseNode(destNode);
+        while (edgeIterator.next()) {
+            if (NodeType.values()[graphHopperStorage.getNodeAccess().getAdditionalNodeField(edgeIterator.getAdjNode())] == NodeType.STOP_EXIT_NODE ) {
+                return edgeIterator.getAdjNode();
+            }
+        }
+        throw new RuntimeException("Unexpected graph structure.");
     }
 
 }
