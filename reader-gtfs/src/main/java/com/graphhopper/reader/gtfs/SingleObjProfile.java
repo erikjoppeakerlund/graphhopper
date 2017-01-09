@@ -109,7 +109,7 @@ class SingleObjProfile {
             // impl of the graph. so when about 10 results, the algorithm fails
             // to find them and stops after exploring the whole graph. set
             // maxVisited to infinity and also rangeQueryEndTime.
-            if (foundSolutions.size() >= 10)
+            if (foundSolutions.size() >= 4)
                 break;
             for (EdgeIteratorState edge : explorer.exploreEdgesAround(label)) {
                 GtfsStorage.EdgeType edgeType = flagEncoder.getEdgeType(edge.getFlags());
@@ -184,16 +184,16 @@ class SingleObjProfile {
     }
 
     private void addToFoundSolutions(Label newSolution, Set<Label> foundSolutions) {
-        // skipp pareto-dominance check in a try to get lager number of results
-        // at the destination
 
-        /*
-         * for (Iterator<Label> iterator = foundSolutions.iterator();
-         * iterator.hasNext();) { Label existingSolution = iterator.next(); if
-         * (ParetoDominates(newSolution, existingSolution)) { iterator.remove();
-         * } else if (ParetoDominates(existingSolution, newSolution)) { return;
-         * } }
-         */
+        for (Iterator<Label> iterator = foundSolutions.iterator(); iterator.hasNext();) {
+            Label existingSolution = iterator.next();
+            if (ParetoDominates(newSolution, existingSolution)) {
+                iterator.remove();
+            } else if (ParetoDominates(existingSolution, newSolution)) {
+                return;
+            }
+        }
+
         foundSolutions.add(newSolution);
     }
 
