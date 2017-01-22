@@ -300,7 +300,7 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables />
-                            <argLine>--add-exports java.base/jdk.internal.ref=ALL-UNNAMED</argLine>
+                            <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                         </configuration>
                     </plugin>
                     <plugin>
